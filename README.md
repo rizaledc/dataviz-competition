@@ -9,3 +9,29 @@
 - [Cara Menjalankan Aplikasi](#cara-menjalankan-aplikasi)
 - [Kontributor](#kontributor)
 
+## Konsep Penting
+- *Inheritance:* Digunakan terutama pada *Model Data* untuk struktur yang jelas dan terorganisir. Fungsionalitas utama (logika bisnis) ditangani di bagian lain dari kode (misalnya, di controller/service layer).
+
+## Instalasi & Setup
+Untuk menjalankan proyek ini di lingkungan lokal Anda, ikuti langkah-langkah berikut:
+1.  *Clone Repositori:*
+    bash
+    git clone [[https://github.com/rizaledc/PBO-PENJUALAN-OEMAH.git](https://github.com/rizaledc/PBO-PENJUALAN-OEMAH.git)
+    
+2.  *Masuk ke Direktori Proyek:*
+    bash
+    cd Nama-Folder-Proyek-Anda
+    
+3.  *Jalankan code di terminal:*
+        bash
+        mvn spring-boot:run
+        
+4.  *Buka Google Chorome/Browser lainnya:*
+    Aplikasi akan berjalan di http://localhost:8080/
+
+
+## Kontributor
+Proyek ini dikembangkan oleh Kelompok 01:
+- [Rizal Wahyu Pratama] - 
+- [Khulika Malkan] - 
+- [Mikhael Setia Budi] -
