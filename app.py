@@ -84,6 +84,8 @@ def visualize():
 
     # Clean and aggregate data for the bar chart
     filtered_data = df[df['INDICATOR'] == indicator_code].copy()
+    print(f"DEBUG: Filtered data rows for indicator {indicator_code}: {len(filtered_data)}")
+    print(f"DEBUG: Filtered data sample:\n{filtered_data.head()}")
 
     # Suppress SettingWithCopyWarning by explicitly operating on a copy
     filtered_data.loc[:, 'country_territory'] = filtered_data['country_territory'].astype(str).str.strip().str.lower()
@@ -94,6 +96,9 @@ def visualize():
 
     aggregated_data = filtered_data.groupby('country_territory')['OBS_VALUE'].sum().reset_index()
     aggregated_data = aggregated_data.rename(columns={'country_territory': 'country_territory'})
+
+    print(f"DEBUG: Aggregated data rows: {len(aggregated_data)}")
+    print(f"DEBUG: Aggregated data sample:\n{aggregated_data.head()}")
 
     # Initialize all Bokeh components to None
     bokeh_script_bar, bokeh_div_bar = None, None
@@ -118,6 +123,11 @@ def visualize():
     ]))
 
     bokeh_script_bar, bokeh_div_bar = components(p_bar)
+    # Debug prints
+    print(f"DEBUG: bokeh_script_bar is None? {bokeh_script_bar is None}")
+    print(f"DEBUG: bokeh_div_bar is None? {bokeh_div_bar is None}")
+    print(f"DEBUG: bokeh_script_bar type: {type(bokeh_script_bar)} length: {len(bokeh_script_bar) if bokeh_script_bar else 'None'}")
+    print(f"DEBUG: bokeh_div_bar type: {type(bokeh_div_bar)} length: {len(bokeh_div_bar) if bokeh_div_bar else 'None'}")
 
     # --- Generate Box Plot (Geographical Category) ---
     box_data = filtered_data.groupby('country_territory')['OBS_VALUE'].agg([

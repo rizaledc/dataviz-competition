@@ -8,13 +8,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-3.4.1.min.css" rel="stylesheet" type="text/css">
-    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.4.1.min.css" rel="stylesheet" type="text/css">
+    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-3.7.3.min.css" rel="stylesheet" type="text/css">
+    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.7.3.min.css" rel="stylesheet" type="text/css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.3.4.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.3.4.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.3.4.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.7.3.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.7.3.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.7.3.min.js"></script>
     <style>
         /* Using Inter font for a modern look */
         body {
@@ -124,9 +124,11 @@
             <div class="p-4 rounded-lg bg-gray-50 hidden" id="statistical" role="tabpanel" aria-labelledby="statistical-tab">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">Statistical Category: Bar Chart</h3>
                 <p class="text-gray-600 mb-4">This bar chart visually represents the magnitude of the selected indicator across different Pacific Island Countries and territories. It allows for quick comparisons of values among various regions, providing immediate insights into which countries stand out in terms of the chosen indicator. Use this chart to identify disparities or common trends across the region.</p>
-                {% if bokeh_script_bar %}
+                {% if bokeh_script_bar and bokeh_div_bar %}
                     {{ bokeh_div_bar|safe }}
                     {{ bokeh_script_bar|safe }}
+                {% elif selected_indicator_code %}
+                    <p class="text-red-500">No data available for the selected indicator. Please try another indicator.</p>
                 {% else %}
                     <p class="text-gray-500">Select an indicator and click "Visualize" to see the bar chart.</p>
                 {% endif %}
