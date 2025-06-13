@@ -188,4 +188,4 @@ def visualize():
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))  # Get port from environment or default to 5000
-        app.run(host='0.0.0.0', port=port, debug=True)  # Use 0.0.0.0 and the dynamic port
+    app.run(host='0.0.0.0', port=port, debug=True)  # Use 0.0.0.0 and the dynamic port
