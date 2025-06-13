@@ -1,5 +1,4 @@
-flask
 pandas
-matplotlib
 plotly
-bokeh
+numpy
+streamlit
