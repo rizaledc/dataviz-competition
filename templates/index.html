@@ -1,42 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.bokeh.org/bokeh/release/bokeh-3.4.1.min.css" rel="stylesheet" type="text/css">
     <link href="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.4.1.min.css" rel="stylesheet" type="text/css">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <style>
+        /* Menggunakan font Inter untuk tampilan yang modern */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style for active tab */
+        .tab-item.active {
+            border-bottom: 3px solid #3B82F6; /* Example blue underline for active tab */
+            color: #3B82F6;
+        }
+    </style>
 </head>
-<body>
-    <div class="container mt-4">
-        <h1>{{ title }}</h1>
+<body class="bg-gray-100 p-4 sm:p-6 md:p-8">
 
-        <form method="POST" action="/visualize">
-            <div class="mb-3">
-                <label for="indicator" class="form-label">Select Indicator</label>
-                <select class="form-select" name="indicator" id="indicator" required>
-                    {% for indicator in indicators %}
-                        <option value="{{ indicator }}">{{ indicator }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Visualize</button>
-        </form>
+    <!-- Kontainer Utama -->
+    <div class="container bg-white w-full mx-auto rounded-xl shadow-lg overflow-hidden">
+        
+        <!-- Judul -->
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 text-center py-6 px-4">
+            {{ title }}
+        </h1>
 
-        {% if bokeh_div %}
-            <div class="mt-4">
-                <h3>Visualization</h3>
-                {{ bokeh_div | safe }}
+        <!-- Kontainer Gambar -->
+        <div class="image-container">
+            <!-- Gambar menggunakan placeholder. Ganti 'src' dengan URL gambar Anda. -->
+            <img 
+                src="{{ url_for('static', filename='images/economic_development.png') }}" 
+                onerror="this.onerror=null;this.src='https://placehold.co/800x450/e0e0e0/999999?text=Gambar+Gagal+Dimuat';" 
+                alt="Ilustrasi pengembangan ekonomi" 
+                class="w-full h-auto object-cover"
+            >
+        </div>
+
+        <!-- Kontrol Dropdown -->
+        <div class="controls p-6">
+            <form method="POST" action="/visualize" id="visualizationForm">
+                <div class="relative mb-4">
+                    <select class="w-full appearance-none bg-white border-2 border-black rounded-full py-3 px-5 text-center text-lg font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500" name="indicator" id="indicatorSelect">
+                        <option value="" disabled {% if not selected_indicator %}selected{% endif %}>select indicator</option>
+                        {% for indicator in indicators %}
+                            <option value="{{ indicator }}" {% if indicator == selected_indicator %}selected{% endif %}>{{ indicator }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-black">
+                        <!-- Ikon panah bawah kustom -->
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-200">Visualize</button>
+            </form>
+        </div>
+
+        <!-- Navigasi Tab -->
+        <nav class="tabs bg-gray-200 flex justify-around border-y border-gray-300">
+            <a href="#" class="tab-item active text-gray-700 font-bold py-4 px-2 sm:px-4 text-lg hover:bg-gray-300 transition-colors duration-200" data-tab="visualisasi1">Visualisasi 1</a>
+            <a href="#" class="tab-item text-gray-700 font-bold py-4 px-2 sm:px-4 text-lg hover:bg-gray-300 transition-colors duration-200" data-tab="visualisasi2">Visualisasi 2</a>
+            <a href="#" class="tab-item text-gray-700 font-bold py-4 px-2 sm:px-4 text-lg hover:bg-gray-300 transition-colors duration-200" data-tab="visualisasi3">Visualisasi 3</a>
+        </nav>
+
+        <!-- Area Grafik -->
+        <div class="chart-area p-6">
+            <div id="visualisasi1-content" class="tab-content-item">
+                {% if bokeh_div_bar %}
+                    <h3 class="text-xl font-semibold mb-3">Kategori Statistik: Bar Chart</h3>
+                    <div class="chart-container-bokeh">{{ bokeh_div_bar | safe }}</div>
+                    <p class="text-gray-600 leading-relaxed mt-4">Penjelasan: Grafik ini menampilkan nilai observasi ({{ selected_indicator if selected_indicator else 'indikator' }}) untuk setiap negara/wilayah, memberikan gambaran statistik dasar tentang data.</p>
+                {% endif %}
             </div>
-        {% endif %}
+
+            <div id="visualisasi2-content" class="tab-content-item hidden">
+                {% if bokeh_div_box %}
+                    <h3 class="text-xl font-semibold mb-3">Kategori Geografis: Box Plot</h3>
+                    <div class="chart-container-bokeh">{{ bokeh_div_box | safe }}</div>
+                    <p class="text-gray-600 leading-relaxed mt-4">Penjelasan: Box plot ini menunjukkan distribusi nilai observasi ({{ selected_indicator if selected_indicator else 'indikator' }}) untuk setiap negara/wilayah, termasuk median, kuartil, dan outlier.</p>
+                {% endif %}
+            </div>
+
+            <div id="visualisasi3-content" class="tab-content-item hidden">
+                {% if bokeh_div_line %}
+                    <h3 class="text-xl font-semibold mb-3">Kategori Waktu: Line Chart</h3>
+                    <div class="chart-container-bokeh">{{ bokeh_div_line | safe }}</div>
+                    <p class="text-gray-600 leading-relaxed mt-4">Penjelasan: Grafik garis ini menampilkan tren nilai observasi ({{ selected_indicator if selected_indicator else 'indikator' }}) seiring waktu untuk berbagai negara/wilayah.</p>
+                {% endif %}
+            </div>
+        </div>
+
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.4.1.min.js"></script>
     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.4.1.min.js"></script>
     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.4.1.min.js"></script>
-    {{ bokeh_script | safe }}
+    {% if bokeh_script_bar %}{{ bokeh_script_bar | safe }}{% endif %}
+    {% if bokeh_script_box %}{{ bokeh_script_box | safe }}{% endif %}
+    {% if bokeh_script_line %}{{ bokeh_script_line | safe }}{% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabItems = document.querySelectorAll('.tab-item');
+            const tabContents = document.querySelectorAll('.tab-content-item');
+            const indicatorSelect = document.getElementById('indicatorSelect');
+
+            // Function to show a specific tab content
+            function showTab(tabId) {
+                tabContents.forEach(content => {
+                    if (content.id === tabId + '-content') {
+                        content.classList.remove('hidden');
+                    } else {
+                        content.classList.add('hidden');
+                    }
+                });
+
+                tabItems.forEach(item => {
+                    if (item.dataset.tab === tabId) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+
+            // Set initial active tab based on query parameter or default to bar chart
+            const urlParams = new URLSearchParams(window.location.search);
+            const activeTabFromUrl = urlParams.get('tab');
+            if (activeTabFromUrl) {
+                showTab(activeTabFromUrl);
+            } else {
+                // Default to Visualisasi 1 (Bar Chart)
+                showTab('visualisasi1');
+            }
+
+            // Handle tab clicks
+            tabItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabId = this.dataset.tab;
+                    showTab(tabId);
+                });
+            });
+
+            // Handle form submission to include active tab in URL for persistence
+            document.getElementById('visualizationForm').addEventListener('submit', function(e) {
+                // Get the currently active tab
+                const currentActiveTab = document.querySelector('.tab-item.active');
+                if (currentActiveTab) {
+                    const tabId = currentActiveTab.dataset.tab;
+                    // Append the active tab as a query parameter
+                    const form = e.target;
+                    const action = new URL(form.action);
+                    action.searchParams.set('tab', tabId);
+                    form.action = action.toString();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
