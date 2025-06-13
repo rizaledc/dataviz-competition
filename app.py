@@ -9,6 +9,9 @@ app = Flask(__name__)
 
 # Load the dataset globally
 df = pd.read_csv('data/Sustainable Development Goal 08 - Decent Work and Economic Growth data.csv')
+# Rename the long column name to a shorter, more manageable one for consistent use
+df = df.rename(columns={'Pacific Island Countries and territories': 'country_territory'})
+print(f"DEBUG: Columns after renaming: {df.columns.tolist()}")
 # Define categories and their indicators with human-readable names and descriptions
 CATEGORY_INDICATORS = {
     "economy": {
@@ -79,14 +82,18 @@ def visualize():
     # Store selected indicator for display after submission
     selected_indicator_code = indicator_code
 
-    filtered_data = df[df['INDICATOR'] == indicator_code]
+    # Clean and aggregate data for the bar chart
+    filtered_data = df[df['INDICATOR'] == indicator_code].copy()
 
-    # Clean and aggregate data to handle duplicate 'Pacific Island Countries and territories'
-    filtered_data['Pacific Island Countries and territories'] = filtered_data['Pacific Island Countries and territories'].astype(str).str.strip().str.lower()
-    aggregated_data = filtered_data.groupby('Pacific Island Countries and territories')['OBS_VALUE'].sum().reset_index()
-    aggregated_data = aggregated_data.rename(columns={'Pacific Island Countries and territories': 'country_territory'})
-    print(f"DEBUG: Aggregated Data Columns (Bar Chart): {aggregated_data.columns.tolist()}")
-    print(f"DEBUG: Aggregated Data Sample (Bar Chart):\n{aggregated_data.head()}")
+    # Suppress SettingWithCopyWarning by explicitly operating on a copy
+    filtered_data.loc[:, 'country_territory'] = filtered_data['country_territory'].astype(str).str.strip().str.lower()
+    filtered_data.loc[:, 'TIME_PERIOD'] = filtered_data['TIME_PERIOD'].astype(str)
+
+    # Convert OBS_VALUE to numeric, coercing errors to NaN
+    filtered_data['OBS_VALUE'] = pd.to_numeric(filtered_data['OBS_VALUE'], errors='coerce')
+
+    aggregated_data = filtered_data.groupby('country_territory')['OBS_VALUE'].sum().reset_index()
+    aggregated_data = aggregated_data.rename(columns={'country_territory': 'country_territory'})
 
     # Initialize all Bokeh components to None
     bokeh_script_bar, bokeh_div_bar = None, None
@@ -113,16 +120,14 @@ def visualize():
     bokeh_script_bar, bokeh_div_bar = components(p_bar)
 
     # --- Generate Box Plot (Geographical Category) ---
-    box_data = filtered_data.groupby('Pacific Island Countries and territories')['OBS_VALUE'].agg([
+    box_data = filtered_data.groupby('country_territory')['OBS_VALUE'].agg([
         ('q1', lambda x: x.quantile(0.25)),
         ('q2', lambda x: x.quantile(0.5)),
         ('q3', lambda x: x.quantile(0.75)),
         ('upper', lambda x: x.quantile(0.75) + 1.5*(x.quantile(0.75)-x.quantile(0.25))),
         ('lower', lambda x: x.quantile(0.25) - 1.5*(x.quantile(0.75)-x.quantile(0.25)))
     ]).reset_index()
-    box_data = box_data.rename(columns={'Pacific Island Countries and territories': 'country_territory'})
-    print(f"DEBUG: Box Data Columns (Box Plot): {box_data.columns.tolist()}")
-    print(f"DEBUG: Box Data Sample (Box Plot):\n{box_data.head()}")
+    box_data = box_data.rename(columns={'country_territory': 'country_territory'})
 
     countries_box = sorted(box_data['country_territory'].unique().tolist())
     p_box = figure(x_range=FactorRange(factors=countries_box), height=350, sizing_mode='scale_width', title=f'Visualization for {indicator_display_name} (Box Plot)',
@@ -150,7 +155,6 @@ def visualize():
     bokeh_script_box, bokeh_div_box = components(p_box)
 
     # --- Generate Line Chart (Time Category) ---
-    filtered_data['TIME_PERIOD'] = filtered_data['TIME_PERIOD'].astype(str)
     time_periods = sorted(filtered_data['TIME_PERIOD'].unique().tolist())
     p_line = figure(x_range=FactorRange(factors=time_periods), height=350, sizing_mode='scale_width', title=f'Visualization for {indicator_display_name} (Line Chart)',
                x_axis_label="Time Period", y_axis_label="Observation Value")
@@ -162,11 +166,9 @@ def visualize():
         ("Observation Value", "@OBS_VALUE"),
     ]))
 
-    for country in filtered_data['Pacific Island Countries and territories'].unique():
-        country_data = filtered_data[filtered_data['Pacific Island Countries and territories'] == country].sort_values(by='TIME_PERIOD')
-        country_data = country_data.rename(columns={'Pacific Island Countries and territories': 'country_territory'})
-        print(f"DEBUG: Line Chart Data Columns for {country}: {country_data.columns.tolist()}")
-        print(f"DEBUG: Line Chart Data Sample for {country}:\n{country_data.head()}")
+    for country in filtered_data['country_territory'].unique():
+        country_data = filtered_data[filtered_data['country_territory'] == country].sort_values(by='TIME_PERIOD')
+        country_data = country_data.rename(columns={'country_territory': 'country_territory'})
         source_line = ColumnDataSource(country_data) # Create a source for each country
         p_line.line(x='TIME_PERIOD', y='OBS_VALUE', source=source_line, legend_label=country, line_width=2)
 
