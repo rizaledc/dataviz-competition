@@ -95,7 +95,7 @@ def visualize():
 
     # --- Generate Bar Chart (Statistical Category) ---
     countries_bar = sorted(aggregated_data['country_territory'].unique().tolist())
-    p_bar = figure(x_range=FactorRange(factors=countries_bar), height=350, sizing_mode='scale_width', title=f'Visualization for {indicator_display_name} (Bar Chart)',
+    p_bar = figure(x_range=FactorRange(factors=countries_bar), height=350, sizing_mode='stretch_width', title=f'Visualization for {indicator_display_name} (Bar Chart)',
                x_axis_label="Country/Territory", y_axis_label="Observation Value")
     source_bar = ColumnDataSource(aggregated_data)
     p_bar.vbar(x='country_territory', top='OBS_VALUE', width=0.9, source=source_bar)
@@ -125,7 +125,7 @@ def visualize():
     print(f"DEBUG: Box Data Sample (Box Plot):\n{box_data.head()}")
 
     countries_box = sorted(box_data['country_territory'].unique().tolist())
-    p_box = figure(x_range=FactorRange(factors=countries_box), height=350, sizing_mode='scale_width', title=f'Visualization for {indicator_display_name} (Box Plot)',
+    p_box = figure(x_range=FactorRange(factors=countries_box), height=350, sizing_mode='stretch_width', title=f'Visualization for {indicator_display_name} (Box Plot)',
                x_axis_label="Country/Territory", y_axis_label="Observation Value")
 
     source_box = ColumnDataSource(box_data)
@@ -152,7 +152,7 @@ def visualize():
     # --- Generate Line Chart (Time Category) ---
     filtered_data['TIME_PERIOD'] = filtered_data['TIME_PERIOD'].astype(str)
     time_periods = sorted(filtered_data['TIME_PERIOD'].unique().tolist())
-    p_line = figure(x_range=FactorRange(factors=time_periods), height=350, sizing_mode='scale_width', title=f'Visualization for {indicator_display_name} (Line Chart)',
+    p_line = figure(x_range=FactorRange(factors=time_periods), height=350, sizing_mode='stretch_width', title=f'Visualization for {indicator_display_name} (Line Chart)',
                x_axis_label="Time Period", y_axis_label="Observation Value")
 
     # Add HoverTool for Line Chart (before plotting lines)

@@ -12,10 +12,15 @@
     <link href="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.4.1.min.css" rel="stylesheet" type="text/css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.3.4.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.3.4.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.3.4.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.4.1.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.4.1.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.4.1.min.js"></script>
     <style>
+        /* Ensure all elements use border-box for consistent sizing */
+        * {
+            box-sizing: border-box;
+        }
+
         /* Using Inter font for a modern look */
         body {
             font-family: 'Inter', sans-serif;
@@ -43,21 +48,39 @@
             background: #555;
         }
 
-        /* Ensure html and body take full height */
+        /* Ensure html and body take full height and width */
         html, body {
             height: 100%;
+            width: 100%;
             margin: 0;
+            /* overflow-x: hidden; */ /* Keep commented for debugging responsiveness issues */
         }
 
         /* Main content should grow to fill available space */
         .flex-grow {
             flex-grow: 1;
         }
+
+        /* Ensure Bokeh plots are responsive */
+        .bk-root, .bk-plot-wrapper, .bk-canvas-wrapper, .bk-canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-width: 100% !important;
+        }
+
+        /* Additional aggressive responsive rules for plots */
+        #statistical .w-full > .bk-root,
+        #geographical .w-full > .bk-root,
+        #time .w-full > .bk-root {
+            width: 100% !important;
+            height: auto !important;
+            max-width: 100% !important;
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans leading-normal tracking-normal h-full flex flex-col">
     <nav class="bg-white shadow-lg">
-        <div class="container mx-auto px-6 py-3">
+        <div class="w-full px-4 sm:px-6 lg:px-8 py-3">
             <div class="flex items-center justify-between">
                 <div class="text-gray-800 text-xl font-bold">{{ title }}</div>
                 <div class="flex items-center">
@@ -67,10 +90,10 @@
         </div>
     </nav>
 
-    <div class="container mx-auto mt-8 p-4 bg-white shadow-lg rounded-lg flex-grow overflow-auto">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6">Data Visualization</h1>
+    <div class="w-full mt-8 bg-white shadow-lg rounded-lg flex-grow">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 px-4 sm:px-6 lg:px-8">Data Visualization</h1>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 px-4 sm:px-6 lg:px-8">
             <!-- Placeholder for image -->
             <div class="mb-4 md:mb-0">
                 <img src="/static/images/Pasific Map.png" alt="Pacific Island Nations Map" class="rounded-lg shadow-md w-full h-auto">
@@ -86,7 +109,7 @@
             </div>
         </div>
 
-        <form action="/visualize" method="post" class="mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+        <form action="/visualize" method="post" class="mb-8 border border-gray-200 rounded-lg bg-gray-50 px-4 sm:px-6 lg:px-8 py-4">
             <div class="mb-4">
                 <label for="category-select" class="block text-sm font-medium text-gray-700 mb-2">Select Category:</label>
                 <select id="category-select" name="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
@@ -106,46 +129,52 @@
             <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Visualize</button>
         </form>
 
-        <div class="mb-4 border-b border-gray-200">
+        <div class="mb-4 border-b border-gray-200 px-4 sm:px-6 lg:px-8">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg" id="statistical-tab" data-tabs-target="#statistical" type="button" role="tab" aria-controls="statistical" aria-selected="false">Statistical Category</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg {% if selected_category_key == 'economy' or selected_category_key == 'work' %}text-blue-600 border-blue-600{% else %}hover:text-gray-600 hover:border-gray-300{% endif %}" id="statistical-tab" data-tabs-target="#statistical" type="button" role="tab" aria-controls="statistical" aria-selected="{% if selected_category_key == 'economy' or selected_category_key == 'work' %}true{% else %}false{% endif %}">Statistical Category</button>
                 </li>
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300" id="geographical-tab" data-tabs-target="#geographical" type="button" role="tab" aria-controls="geographical" aria-selected="false">Geographical Category</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg {% if selected_category_key == 'trade_resources' %}text-blue-600 border-blue-600{% else %}hover:text-gray-600 hover:border-gray-300{% endif %}" id="geographical-tab" data-tabs-target="#geographical" type="button" role="tab" aria-controls="geographical" aria-selected="{% if selected_category_key == 'trade_resources' %}true{% else %}false{% endif %}">Geographical Category</button>
                 </li>
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300" id="time-tab" data-tabs-target="#time" type="button" role="tab" aria-controls="time" aria-selected="false">Time/Frequency Category</button>
+                    <button class="inline-block p-4 border-b-2 rounded-t-lg {% if selected_category_key == 'social_growth' %}text-blue-600 border-blue-600{% else %}hover:text-gray-600 hover:border-gray-300{% endif %}" id="time-tab" data-tabs-target="#time" type="button" role="tab" aria-controls="time" aria-selected="{% if selected_category_key == 'social_growth' %}true{% else %}false{% endif %}">Time/Frequency Category</button>
                 </li>
             </ul>
         </div>
 
         <div id="default-tab-content">
-            <div class="p-4 rounded-lg bg-gray-50 hidden" id="statistical" role="tabpanel" aria-labelledby="statistical-tab">
+            <div class="rounded-lg bg-gray-50 px-4 sm:px-6 lg:px-8 py-4 {% if selected_category_key == 'economy' or selected_category_key == 'work' %}{% else %}hidden{% endif %}" id="statistical" role="tabpanel" aria-labelledby="statistical-tab">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">Statistical Category: Bar Chart</h3>
                 <p class="text-gray-600 mb-4">This bar chart visually represents the magnitude of the selected indicator across different Pacific Island Countries and territories. It allows for quick comparisons of values among various regions, providing immediate insights into which countries stand out in terms of the chosen indicator. Use this chart to identify disparities or common trends across the region.</p>
                 {% if bokeh_script_bar %}
-                    {{ bokeh_div_bar|safe }}
+                    <div class="w-full overflow-x-auto">
+                        {{ bokeh_div_bar|safe }}
+                    </div>
                     {{ bokeh_script_bar|safe }}
                 {% else %}
                     <p class="text-gray-500">Select an indicator and click "Visualize" to see the bar chart.</p>
                 {% endif %}
             </div>
-            <div class="p-4 rounded-lg bg-gray-50 hidden" id="geographical" role="tabpanel" aria-labelledby="geographical-tab">
+            <div class="rounded-lg bg-gray-50 px-4 sm:px-6 lg:px-8 py-4 {% if selected_category_key == 'trade_resources' %}{% else %}hidden{% endif %}" id="geographical" role="tabpanel" aria-labelledby="geographical-tab">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">Geographical Category: Box Plot</h3>
                 <p class="text-gray-600 mb-4">This box plot provides a statistical summary of the selected indicator's distribution across countries. It displays the median, quartiles, and potential outliers, offering a clear view of the spread and central tendency of the data. This visualization is particularly useful for understanding the variability and identifying unusual data points within the geographical context.</p>
                 {% if bokeh_script_box %}
-                    {{ bokeh_div_box|safe }}
+                    <div class="w-full overflow-x-auto">
+                        {{ bokeh_div_box|safe }}
+                    </div>
                     {{ bokeh_script_box|safe }}
                 {% else %}
                     <p class="text-gray-500">Select an indicator and click "Visualize" to see the box plot.</p>
                 {% endif %}
             </div>
-            <div class="p-4 rounded-lg bg-gray-50 hidden" id="time" role="tabpanel" aria-labelledby="time-tab">
+            <div class="rounded-lg bg-gray-50 px-4 sm:px-6 lg:px-8 py-4 {% if selected_category_key == 'social_growth' %}{% else %}hidden{% endif %}" id="time" role="tabpanel" aria-labelledby="time-tab">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">Time/Frequency Category: Line Chart</h3>
                 <p class="text-gray-600 mb-4">This line chart illustrates the trend and evolution of the selected indicator over different time periods. Each line represents a specific country or territory, allowing for an easy comparison of their performance or changes over time. This chart is ideal for identifying patterns, growth, decline, or stability in the data across the Pacific region.</p>
                 {% if bokeh_script_line %}
-                    {{ bokeh_div_line|safe }}
+                    <div class="w-full overflow-x-auto">
+                        {{ bokeh_div_line|safe }}
+                    </div>
                     {{ bokeh_script_line|safe }}
                 {% else %}
                     <p class="text-gray-500">Select an indicator and click "Visualize" to see the line chart.</p>
@@ -186,56 +215,6 @@
         // Update indicators when category changes
         categorySelect.addEventListener('change', (event) => {
             populateIndicators(event.target.value);
-        });
-
-        // Activate the correct tab based on the selected category after form submission
-        document.addEventListener('DOMContentLoaded', function() {
-            const defaultTabButtons = document.querySelectorAll('#default-tab button[data-tabs-target]');
-            let activeTabId = '';
-
-            // Map category keys to tab IDs
-            const categoryTabMap = {
-                'economy': 'statistical',
-                'work': 'statistical', // Assuming 'work' also uses bar chart for now
-                'trade_resources': 'geographical', // Assuming 'trade_resources' uses box plot for now
-                'social_growth': 'time' // Assuming 'social_growth' uses line chart for now
-            };
-
-            // Determine the active tab based on selected category
-            if (selectedCategoryKey) {
-                activeTabId = categoryTabMap[selectedCategoryKey];
-            }
-
-            if (activeTabId) {
-                const activeTabButton = document.getElementById(`${activeTabId}-tab`);
-                if (activeTabButton) {
-                    // Manually activate the tab using Flowbite's logic if available
-                    const targetTabContent = document.getElementById(activeTabId);
-                    const allTabContents = document.querySelectorAll('#default-tab-content > div');
-                    const allTabButtons = document.querySelectorAll('#default-tab button');
-
-                    allTabContents.forEach(content => content.classList.add('hidden'));
-                    allTabButtons.forEach(button => {
-                        button.classList.remove('text-blue-600', 'border-blue-600');
-                        button.classList.add('border-b-2', 'rounded-t-lg', 'hover:text-gray-600', 'hover:border-gray-300');
-                        button.setAttribute('aria-selected', 'false');
-                    });
-
-                    targetTabContent.classList.remove('hidden');
-                    activeTabButton.classList.add('text-blue-600', 'border-blue-600');
-                    activeTabButton.classList.remove('hover:text-gray-600', 'hover:border-gray-300');
-                    activeTabButton.setAttribute('aria-selected', 'true');
-                }
-            } else if (defaultTabButtons.length > 0) {
-                // Fallback to activating the first tab if no specific category selected
-                defaultTabButtons[0].click();
-            }
-        });
-
-        // Initialize Flowbite tabs
-        document.querySelectorAll('[data-tabs-toggle]').forEach(triggerEl => {
-            const targetEl = document.querySelector(triggerEl.getAttribute('data-tabs-target'));
-            new Flowbite.Tabs(triggerEl, targetEl);
         });
 
     </script>
