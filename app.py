@@ -335,5 +335,5 @@ def main():
     st.markdown("---")
     st.markdown("Data visualization dashboard for Sustainable Development Goal 8: Decent Work and Economic Growth")
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     main()
