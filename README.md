@@ -11,7 +11,7 @@
 
 ## Konsep Penting
 - *Inheritance:* Digunakan terutama pada *Model Data* untuk struktur yang jelas dan terorganisir. Fungsionalitas utama (logika bisnis) ditangani di bagian lain dari kode (misalnya, di controller/service layer).
-
+https://pacific-economic.onrender.com
 ## Instalasi & Setup
 Untuk menjalankan proyek ini di lingkungan lokal Anda, ikuti langkah-langkah berikut:
 1.  *Clone Repositori:*
