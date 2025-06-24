@@ -3,6 +3,8 @@
 <p align="center">Khulika Malkan (2311110057)</p>
 <p align="center">Mikhael Setia Budi (2311110033)</p>
 
+![image](https://github.com/user-attachments/assets/ae06dc9f-1afa-40d0-bfed-6c2684081a28)
+
 ## Daftar Isi
 - [Konsep Penting](#konsep-penting)
 - [Instalasi & Setup](#instalasi--setup)
